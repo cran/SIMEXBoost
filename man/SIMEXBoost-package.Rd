@@ -5,7 +5,7 @@
 Boosting Method for High-Dimensional Error-Prone Data
 }
 \description{
-Implementation of the boosting procedure with the simulation and extrapolation (SIMEX) approach to address variable selection and estimation for (ultra)high-dimensional data subject to measurement error in covariates.
+Implementation of the boosting procedure with the simulation and extrapolation (SIMEX) approach to address variable selection and estimation for high-dimensional data subject to measurement error in covariates.
 }
 
 \details{
@@ -14,7 +14,7 @@ This package aims to do variable selection and estimation by using the boosting 
 \author{
 Bangxu Qiu and Li-Pang Chen
 
-Maintainer: Bangxu Qiu <qiubangxu@gmail.com>
+Maintainer: Bangxu Qiu <1135427976@qq.com>
 }
 
 

@@ -5,34 +5,30 @@ SIMEXBoost<-function(Y,Xstar,zeta=c(0,0.25,0.5,0.75,1),B=500,type="normal",sigma
   if(dim(Xstar)[2]!=dim(sigmae)[2]) return("ERROR:sigmae should have the same dimention with Xstar")
   if(Lambda<(-0.00001)) return("ERROR:Lambda should larger than 0")
   if(type!="normal"&type!="binary"&type!="poisson"&type!="AFT-normal"&type!="AFT-loggamma") return("ERROR:tpye set error")
-  p=dim(Xstar)[2];n=dim(Xstar)[1];betazero=t(rep(0,p));
+  p=dim(Xstar)[2];n=dim(Xstar)[1];betazero=(rep(0,p));
   if(type=="normal"){
     betarbind<-NULL;
     for(cc in 1:length(zeta)){
       betaihat<-NULL
       for(i in 1:B){
         ec<-mvrnorm(n=n,rep(0,p),sigmae)
-        Wetabt<-Xstar+sqrt(zeta[cc])*ec#continous
-        Wetab<-t(Wetabt);time=0;
+        Wetabt<-Xstar+sqrt(zeta[1])*ec#continous
+        Wetab<-Wetabt;time=0;
         for(j in 1:Iter){
           betazero1=betazero
-          ubetastep<-NULL
-          for(i in 1:length(Y)){
-            ubeta<-(Y[i]-sum(Wetab[,i]*betazero1))
-            ubeta1<-Wetab[,i]*ubeta - Lambda * betazero1
-            ubetastep<-rbind(ubetastep,ubeta1)
-          }
-          #¼ÆËãubeta
-          u<-NULL
-          for(i in 1:p){
-            u<-c(u,sum(ubetastep[,i])/length(Y))
-          }
-          for(i in 1:p){
-            Delta=u
-            #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
-            if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-            #if(time==Iter-1) betazero[which(abs(betazero)<0.16)]=0
-          }
+          ubetastep<- t(Wetab) %*% (Y - Wetab %*% betazero1) - Lambda * betazero1
+          dim(Wetab)
+          #A?A?A?A?Gubeta
+          Delta<-ubetastep / length(Y)
+          Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+          betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+          if(time==Iter-1) betazero[which(abs(betazero)<0.16)]=0
+          #for(i in 1:p){
+          #  Delta=u
+          #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
+          #  if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+          #
+          #}
           time=time+1
         }
         betaihat<-rbind(betaihat,betazero)
@@ -97,25 +93,20 @@ SIMEXBoost<-function(Y,Xstar,zeta=c(0,0.25,0.5,0.75,1),B=500,type="normal",sigma
       for(i in 1:B){
         ec<-mvrnorm(n=n,rep(0,p),sigmae)
         Wetabt<-Xstar+sqrt(zeta[cc])*ec
-        Wetab<-t(Wetabt);time=0;
+        Wetab<-Wetabt;time=0;
         for(j in 1:Iter){
           betazero1=betazero
-          ubetastep<-NULL
-          for(i in 1:length(Y)){
-            ubeta<-Y[i]-(exp(sum(Wetab[,i]*betazero1))/(1+exp(sum(Wetab[,i]*betazero1))))
-            ubeta1<-Wetab[,i]*ubeta - Lambda * betazero1
-            ubetastep<-rbind(ubetastep,ubeta1)
-          }
-          #¼ÆËãubeta
-          u<-NULL
-          for(i in 1:p){
-            u<-c(u,sum(ubetastep[,i])/length(Y))
-          }
-          for(i in 1:p){
-            Delta=u
-            #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
-            if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-          }
+          ubetastep<-t(Wetab) %*% (Y - (exp(Wetab %*% betazero1)/(1+exp(Wetab %*% betazero1)))) - Lambda * betazero1
+
+          #A?A?A?A?Gubeta
+          Delta<-ubetastep / length(Y)
+          Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+          betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+          #for(i in 1:p){
+          # Delta=u
+          #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
+          # if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+          #}
           time=time+1
         }
         betaihat<-rbind(betaihat,betazero)
@@ -180,25 +171,20 @@ SIMEXBoost<-function(Y,Xstar,zeta=c(0,0.25,0.5,0.75,1),B=500,type="normal",sigma
       for(i in 1:B){
         ec<-mvrnorm(n=n,rep(0,p),sigmae)
         Wetabt<-Xstar+sqrt(zeta[cc])*ec
-        Wetab<-t(Wetabt);time=0;
+        Wetab<-Wetabt;time=0;
         for(j in 1:Iter){
           betazero1=betazero
-          ubetastep<-NULL
-          for(i in 1:length(Y)){
-            ubeta<-(Y[i]-exp(sum(Wetab[,i]*betazero1)))
-            ubeta1<-Wetab[,i]*ubeta - Lambda * betazero1
-            ubetastep<-rbind(ubetastep,ubeta1)
-          }
-          #¼ÆËãubeta
-          u<-NULL
-          for(i in 1:p){
-            u<-c(u,sum(ubetastep[,i])/length(Y))
-          }
-          for(i in 1:p){
-            Delta=u
-            #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
-            if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-          }
+          ubetastep<-t(Wetab) %*% (Y - exp(Wetab %*% betazero1)) - Lambda * betazero1
+
+          #A?A?A?A?Gubeta
+          Delta<-ubetastep / length(Y)
+          Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+          betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+          #for(i in 1:p){
+          #  Delta=u
+          #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
+          #  if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+          #}
           time=time+1
         }
         betaihat<-rbind(betaihat,betazero)
@@ -298,19 +284,21 @@ SIMEXBoost<-function(Y,Xstar,zeta=c(0,0.25,0.5,0.75,1),B=500,type="normal",sigma
             Rbeta<-LR[,2][i]*exp(-sum(X1censor[,i]*betazero1))
             Rbeta1<-cbind(Rbeta1,Rbeta)
           }
-          ubetastep1<-NULL
-          for(i in 1:length(logTT1real)){
-            ubeta<-(logTT1real[i]-sum(X1real[,i]*betazero1))/
-              (TT1real[i]*exp(-sum(X1real[,i]*betazero1)))
-            ubeta1<-X1real[,i]*ubeta-Lambda*betazero1
-            ubetastep1<-rbind(ubetastep1,ubeta1)
-          }
+          ubetastep1<-NULL;
+          dim((TT1real*(exp(-t(X1real) %*% betazero1))))
+          ubetastep1<- X1real %*% ((logTT1real - t(X1real) %*% betazero1)/(TT1real*(exp(-t(X1real) %*% betazero1)))) - Lambda*betazero1
+          # for(i in 1:length(logTT1real)){
+          #   ubeta<-(logTT1real[i]-sum(X1real[,i]*betazero1))/
+          #     (TT1real[i]*exp(-sum(X1real[,i]*betazero1)))
+          #   ubeta1<-X1real[,i]*ubeta-Lambda*betazero1
+          #   ubetastep1<-rbind(ubetastep1,ubeta1)
+          # }
           dFtgeneration<-NULL;
           for(i in 1:length(TT1censor)){
-            a<-runif(5000,Lbeta1[i],Rbeta1[i])
+            a<-runif(500,Lbeta1[i],Rbeta1[i])
             a1<-functionx(a)
             dFt=sum((Rbeta1[i]-Lbeta1[i])*a1)/length(a1)
-            b<-runif(5000,Lbeta1[i],Rbeta1[i])
+            b<-runif(500,Lbeta1[i],Rbeta1[i])
             b1<-function2(b)
             dFt1<-sum((Rbeta1[i]-Lbeta1[i])*b1)/length(b1)
             censorYi<-dFt/dFt1
@@ -321,23 +309,30 @@ SIMEXBoost<-function(Y,Xstar,zeta=c(0,0.25,0.5,0.75,1),B=500,type="normal",sigma
             if(dFtgeneration[i]=="-Inf") dFtgeneration[i]=0
             if(dFtgeneration[i]=="NaN") dFtgeneration[i]=0
           }
-          ubetastep2<-NULL
-          for(i in 1:length(dFtgeneration)){
-            a<-X1censor[,i]*dFtgeneration[i]-Lambda*betazero1
-            ubetastep2<-rbind(ubetastep2,a)
-          }
+
+          ubetastep2<- X1censor %*% dFtgeneration - Lambda*betazero1
+          # ubetastep2<-NULL
+          # ubetastep2<- X1censor %*% dFtgeneration - Lambda*betazero1
+          # for(i in 1:length(dFtgeneration)){
+          #   a<-X1censor[,i]*dFtgeneration[i]-Lambda*betazero1
+          #   ubetastep2<-rbind(ubetastep2,a)
+          # }
           #compute u
-          ubetastep<-rbind(ubetastep1,ubetastep2)
+          ubetastep<-t(cbind(ubetastep1,ubetastep2))
           u<-NULL
           for(i in 1:p){
             u<-c(u,sum(ubetastep[,i])/length(TT1))
           }
-          for(i in 1:p){
-            Delta=u
-            #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
-            if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-            if(time==Iter-1) betazero[which(abs(betazero)<0.41)]=0
-          }
+          Delta=u
+          Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+          betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+          if(time==Iter-1) betazero[which(abs(betazero)<0.41)]=0
+          #for(i in 1:p){
+
+          #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
+          # if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+
+          #}
           time=time+1
         }
         betaihat<-rbind(betaihat,betazero)
@@ -435,19 +430,19 @@ SIMEXBoost<-function(Y,Xstar,zeta=c(0,0.25,0.5,0.75,1),B=500,type="normal",sigma
             Rbeta<-LR[,2][i]*exp(-sum(X1censor[,i]*betazero1))
             Rbeta1<-cbind(Rbeta1,Rbeta)
           }
-          ubetastep1<-NULL
-          for(i in 1:length(logTT1real)){
-            ubeta<-(logTT1real[i]-sum(X1real[,i]*betazero1))/
-              (TT1real[i]*exp(-sum(X1real[,i]*betazero1)))
-            ubeta1<-X1real[,i]*ubeta-Lambda*betazero1
-            ubetastep1<-rbind(ubetastep1,ubeta1)
-          }
+          ubetastep1<- X1real %*% ((logTT1real - t(X1real) %*% betazero1)/(TT1real*(exp(-t(X1real) %*% betazero1)))) - Lambda*betazero1
+          # for(i in 1:length(logTT1real)){
+          #   ubeta<-(logTT1real[i]-sum(X1real[,i]*betazero1))/
+          #     (TT1real[i]*exp(-sum(X1real[,i]*betazero1)))
+          #   ubeta1<-X1real[,i]*ubeta-Lambda*betazero1
+          #   ubetastep1<-rbind(ubetastep1,ubeta1)
+          # }
           dFtgeneration<-NULL;
           for(i in 1:length(TT1censor)){
-            a<-runif(5000,Lbeta1[i],Rbeta1[i])
+            a<-runif(500,Lbeta1[i],Rbeta1[i])
             a1<-functionx(a)
             dFt=sum((Rbeta1[i]-Lbeta1[i])*a1)/length(a1)
-            b<-runif(5000,Lbeta1[i],Rbeta1[i])
+            b<-runif(500,Lbeta1[i],Rbeta1[i])
             b1<-function2(b)
             dFt1<-sum((Rbeta1[i]-Lbeta1[i])*b1)/length(b1)
             censorYi<-dFt/dFt1
@@ -458,23 +453,29 @@ SIMEXBoost<-function(Y,Xstar,zeta=c(0,0.25,0.5,0.75,1),B=500,type="normal",sigma
             if(dFtgeneration[i]=="-Inf") dFtgeneration[i]=0
             if(dFtgeneration[i]=="NaN") dFtgeneration[i]=0
           }
-          ubetastep2<-NULL
-          for(i in 1:length(dFtgeneration)){
-            a<-X1censor[,i]*dFtgeneration[i]-Lambda*betazero1
-            ubetastep2<-rbind(ubetastep2,a)
-          }
+          ubetastep2<- X1censor %*% dFtgeneration - Lambda*betazero1
+          # ubetastep2<-NULL
+          # ubetastep2<- X1censor %*% dFtgeneration - Lambda*betazero1
+          # for(i in 1:length(dFtgeneration)){
+          #   a<-X1censor[,i]*dFtgeneration[i]-Lambda*betazero1
+          #   ubetastep2<-rbind(ubetastep2,a)
+          # }
           #compute u
-          ubetastep<-rbind(ubetastep1,ubetastep2)
+          ubetastep<-t(cbind(ubetastep1,ubetastep2))
           u<-NULL
           for(i in 1:p){
             u<-c(u,sum(ubetastep[,i])/length(TT1))
           }
-          for(i in 1:p){
-            Delta=u
-            #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
-            if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-            if(time==Iter-1) betazero[which(abs(betazero)<0.41)]=0
-          }
+          Delta=u
+          Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+          betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+          if(time==Iter-1) betazero[which(abs(betazero)<0.41)]=0
+          #for(i in 1:p){
+
+          #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
+          # if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+
+          #}
           time=time+1
         }
         betaihat<-rbind(betaihat,betazero)
@@ -535,4 +536,3 @@ SIMEXBoost<-function(Y,Xstar,zeta=c(0,0.25,0.5,0.75,1),B=500,type="normal",sigma
   }
   return(list("BetaHatCorrect"=betacorrect))
 }
-

@@ -1,45 +1,35 @@
 Boost_VSE<-function(Y,Xstar,type="normal",Iter=200,Lambda=0){
   if(type!="normal"&type!="binary"&type!="poisson"&type!="AFT-normal"&type!="AFT-loggamma") return("ERROR:tpye set error")
-  p=dim(Xstar)[2];n=dim(Xstar)[1];betazero=t(rep(0,p));X=t(Xstar);time=0
+  p=dim(Xstar)[2];n=dim(Xstar)[1];betazero=rep(0,p);X=Xstar;time=0
   if(type=="normal"){
     for(j in 1:Iter){
       betazero1=betazero
-      ubetastep<-NULL
-      for(i in 1:length(Y)){
-        ubeta<-(Y[i]-sum(X[,i]*betazero1))
-        ubeta1<-X[,i]*ubeta - Lambda * betazero1
-        ubetastep<-rbind(ubetastep,ubeta1)
-      }
+      ubetastep<-t(X) %*% (Y - X %*% betazero1) - Lambda * betazero1
 
-      u<-NULL
-      for(i in 1:p){
-        u<-c(u,sum(ubetastep[,i])/length(Y))
-      }
-      for(i in 1:p){
-        Delta=u
-        if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-      }
+
+      Delta<-ubetastep / length(Y)
+      Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+      betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+
+      #for(i in 1:p){
+      #  Delta=u
+      #  if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+      #}
       time=time+1
     }
   }
   if(type=="binary"){
     for(j in 1:Iter){
       betazero1=betazero
-      ubetastep<-NULL
-      for(i in 1:length(Y)){
-        ubeta<-Y[i]-(exp(sum(X[,i]*betazero1))/(1+exp(sum(X[,i]*betazero1))))
-        ubeta1<-X[,i]*ubeta - Lambda * betazero1
-        ubetastep<-rbind(ubetastep,ubeta1)
-      }
+      ubetastep<-t(X) %*% (Y - (exp(X %*% betazero1)/(1+exp(X %*% betazero1)))   ) - Lambda * betazero1
 
-      u<-NULL
-      for(i in 1:p){
-        u<-c(u,sum(ubetastep[,i])/length(Y))
-      }
-      for(i in 1:p){
-        Delta=u
-        if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-      }
+      Delta<-ubetastep / length(Y)
+      Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+      betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+      #for(i in 1:p){
+      #  Delta=u
+      #  if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+      #}
       time=time+1
     }
 
@@ -48,21 +38,16 @@ Boost_VSE<-function(Y,Xstar,type="normal",Iter=200,Lambda=0){
   if(type=="poisson"){
     for(j in 1:Iter){
       betazero1=betazero
-      ubetastep<-NULL
-      for(i in 1:length(Y)){
-        ubeta<-(Y[i]-exp(sum(X[,i]*betazero1)))
-        ubeta1<-X[,i]*ubeta - Lambda * betazero1
-        ubetastep<-rbind(ubetastep,ubeta1)
-      }
+      ubetastep<-t(X) %*% (Y - exp(X %*% betazero1)) - Lambda * betazero1
 
-      u<-NULL
-      for(i in 1:p){
-        u<-c(u,sum(ubetastep[,i])/length(Y))
-      }
-      for(i in 1:p){
-        Delta=u
-        if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-      }
+
+      Delta<-ubetastep / length(Y)
+      Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+      betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+      #for(i in 1:p){
+      #  Delta=u
+      #  if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+      #}
       time=time+1
     }
 
@@ -137,12 +122,16 @@ Boost_VSE<-function(Y,Xstar,type="normal",Iter=200,Lambda=0){
       for(i in 1:p){
         u<-c(u,sum(ubetastep[,i])/length(TT1))
       }
-      for(i in 1:p){
-        Delta=u
-        #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
-        if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-        if(time==Iter-1) betazero[which(abs(betazero)<0.11)]=0
-      }
+      Delta=u
+      Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+      betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+      if(time==Iter-1) betazero[which(abs(betazero)<0.11)]=0
+      #for(i in 1:p){
+
+      #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
+      # if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+
+      #}
       time=time+1
     }
 
@@ -214,12 +203,16 @@ Boost_VSE<-function(Y,Xstar,type="normal",Iter=200,Lambda=0){
       for(i in 1:p){
         u<-c(u,sum(ubetastep[,i])/length(TT1))
       }
-      for(i in 1:p){
-        Delta=u
-        #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
-        if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
-        if(time==Iter-1) betazero[which(abs(betazero)<0.11)]=0
-      }
+      Delta=u
+      Jset = which(abs(Delta)>0.9*max(abs(Delta)))
+      betazero[Jset]=betazero[Jset]+0.05*sign(Delta[Jset])
+      if(time==Iter-1) betazero[which(abs(betazero)<0.11)]=0
+      #for(i in 1:p){
+
+      #if(abs(Delta[i])>0.6*max(abs(Delta))) betazero[i]=betazero[i]+0.01*sign(Delta[i])#Delta[i]=Delta[i]+0.05*sign(Delta[i])
+      # if(abs(Delta[i])>0.9*max(abs(Delta))) betazero[i]=betazero[i]+0.05*sign(Delta[i])
+      # if(time==Iter-1) betazero[which(abs(betazero)<0.11)]=0
+      #}
       time=time+1
     }
 

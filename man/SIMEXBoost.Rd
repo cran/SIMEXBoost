@@ -1,7 +1,7 @@
 \name{SIMEXBoost}
 \alias{SIMEXBoost}
 
-\title{Boosting Method for High-Dimensional Error-Prone Data
+\title{Boosting Method with SIMEX Correction for High-Dimensional Error-Prone Data
 }
 \description{
 This function aims to address variable selection and estimation for (ultra)high-dimensional data subject to covariate measurement error, which are particularly considered in \code{ME_Data}.
@@ -60,14 +60,14 @@ This function aims to address variable selection and estimation for (ultra)high-
 }
 
 \references{
+Chen, L.-P. (2023). De-noising boosting methods for variable selection and estimation subject to error-prone variables. \emph{Statistics and Computing}, 33:38.
+
+Chen, L.-P. and Qiu, B. (2023). Analysis of length-biased and partly interval-censored survival data with mismeasured covariates. \emph{Biometrics}. To appear. <doi: 10.1111/biom.13898>
 
 Chen, L.-P. and Yi, G. Y. (2021). Analysis of noisy survival data with graphical proportional hazards measurement error models. \emph{Biometrics}, 77, 956–969.
 
-Chen, L.-P. (2020). Variable selection and estimation for the additive hazards model subject to left-truncation, right-censoring and measurement error in covariates. \emph{Journal of Statistical Computation and Simulation}, 90, 3261-3300.
-
 Hastie, T., Tibshirani, R. and Friedman, J. (2008). \emph{The Elements of Statistical Learning: Data Mining, Inference, and Prediction}. Springer, New York.
 
-Yi, G. Y. (2017). \emph{Statistical Analysis with Measurement Error and Misclassication: Strategy, Method and Application}. Springer, New York.
 
 }
 

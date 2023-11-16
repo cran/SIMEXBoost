@@ -1,7 +1,7 @@
 \name{Boost_VSE}
 \alias{Boost_VSE}
 
-\title{Boosting Method for High-Dimensional Error-Prone Data
+\title{Boosting Method for Variable Selection and Estimation
 }
 \description{
 The function \code{Boost_VSE}, named after the Boosting procedure for Variable Selection and Estimation, is used to deal with regression models and data structures that are considered in \code{ME_Data}.
@@ -44,6 +44,10 @@ This function aims to address variable selection and estimation for (ultra)high-
 
 \references{
 
+Chen, L.-P. (2023). De-noising boosting methods for variable selection and estimation subject to error-prone variables. \emph{Statistics and Computing}, 33:38.
+
+Chen, L.-P. and Qiu, B. (2023). Analysis of length-biased and partly interval-censored survival data with mismeasured covariates. \emph{Biometrics}. To appear. <doi: 10.1111/biom.13898>
+
 Hastie, T., Tibshirani, R. and Friedman, J. (2008). \emph{The Elements of Statistical Learning: Data Mining, Inference, and Prediction}. Springer, New York.
 
 
@@ -83,20 +87,6 @@ Y<-data$response
 Xstar<-data$ME_covariate
 
 Boost_VSE(Y,Xstar,type="normal",Iter=3)
-
-
-##### Example 3: An AFT model with error-prone covariates #####
-
-X1 = matrix(rnorm((100)*400),nrow=400,ncol=100,byrow=TRUE)
-
-data=ME_Data(X=X1,beta=c(1,1,1,rep(0,dim(X1)[2]-3)),pr0=0.3,
-type="AFT-loggamma",sigmae=diag(0.5,dim(X1)[2]))
-
-Y<-data$response
-Xstar<-data$ME_covariate
-
-Boost_VSE(Y,Xstar,type="AFT-loggamma",Iter=3)
-
 
 
 }
